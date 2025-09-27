@@ -194,3 +194,11 @@ class EscapePod {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { Asteroid, EnergyPickup, Explosion, EscapePod };
 }
+
+// Ensure global for browser tests
+if (typeof window !== 'undefined') {
+    window.Asteroid = Asteroid;
+    window.EnergyPickup = EnergyPickup;
+    window.Explosion = Explosion;
+    window.EscapePod = EscapePod;
+}

@@ -9,7 +9,7 @@ class CommandManager {
             'ArrowDown': 'brake',
             'ArrowLeft': 'rotateLeft',
             'ArrowRight': 'rotateRight',
-            ' ': 'shoot',
+            'Space': 'shoot',
             'KeyH': 'heal',
             'KeyE': 'escape',
             'KeyA': 'autopilot',
@@ -117,22 +117,22 @@ class CommandManager {
 
     rotateLeft() {
         if (this.game && this.game.spacecraft) {
-            this.game.spacecraft.rotate(-5);
+            this.game.spacecraft.rotate(-10);
             this.addConsoleMessage('↩️ Rotating left!');
         }
     }
 
     rotateRight() {
         if (this.game && this.game.spacecraft) {
-            this.game.spacecraft.rotate(5);
+            this.game.spacecraft.rotate(10);
             this.addConsoleMessage('↪️ Rotating right!');
         }
     }
 
     shoot() {
-        if (this.game && this.game.spacecraft) {
-            const shot = this.game.spacecraft.fireWeapon();
-            if (shot) {
+        if (this.game) {
+            const fired = this.game.shoot();
+            if (fired) {
                 this.addConsoleMessage('💥 Strong Gun fired! (1-shot asteroid destruction)');
             } else {
                 this.addConsoleMessage('⚠️ Weapons offline or insufficient energy!');
@@ -280,4 +280,9 @@ class CommandManager {
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CommandManager;
+}
+
+// Ensure global for browser tests
+if (typeof window !== 'undefined') {
+    window.CommandManager = CommandManager;
 }

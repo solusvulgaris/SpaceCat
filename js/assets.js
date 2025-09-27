@@ -152,3 +152,8 @@ class AssetManager {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AssetManager;
 }
+
+// Ensure global for browser tests
+if (typeof window !== 'undefined') {
+    window.AssetManager = AssetManager;
+}

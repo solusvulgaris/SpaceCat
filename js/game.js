@@ -14,7 +14,8 @@ class SpaceCatGame {
         this.physics = new PhysicsEngine();
         this.ui = new UIManager();
         this.commands = new CommandManager();
-        this.spacecraft = null;
+        // Ensure spacecraft exists immediately for loading tests; will be re-initialized in init()
+        this.spacecraft = new SpaceCatShip();
         
         // Game objects
         this.asteroids = [];
@@ -96,7 +97,7 @@ class SpaceCatGame {
         if (startBtn) startBtn.addEventListener('click', () => this.startGame());
         if (pauseBtn) pauseBtn.addEventListener('click', () => this.togglePause());
         if (resetBtn) resetBtn.addEventListener('click', () => this.resetGame());
-        if (playAgainBtn) playAgainBtn.addEventListener('click', () => this.resetGame());
+        if (playAgainBtn) playAgainBtn.addEventListener('click', () => this.startGame());
     }
 
     showLoadingMessage(message) {
@@ -146,6 +147,11 @@ class SpaceCatGame {
                 size
             );
             asteroid.initializeSprite(this.assetManager);
+            // Make asteroids fall from the top; speed depends on size
+            const speedY = size === 'small' ? (120 + Math.random() * 60)
+                        : size === 'medium' ? (80 + Math.random() * 40)
+                        : (40 + Math.random() * 40);
+            asteroid.velocity.y = speedY;
             this.asteroids.push(asteroid);
         }
     }
@@ -162,6 +168,22 @@ class SpaceCatGame {
             pickup.initializeSprite(this.assetManager);
             this.pickups.push(pickup);
         }
+    }
+
+    // Spawn an energy pickup near a given position (around destroyed asteroids)
+    spawnEnergyPickupAt(x, y, size = 'medium') {
+        // Slight random offset so it looks scattered from the explosion
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 10 + Math.random() * 25;
+        const px = x + Math.cos(angle) * distance;
+        const py = y + Math.sin(angle) * distance;
+
+        const types = ['healing', 'fuel', 'purr'];
+        const type = types[Math.floor(Math.random() * types.length)];
+
+        const pickup = new EnergyPickup(px, py, type);
+        pickup.initializeSprite(this.assetManager);
+        this.pickups.push(pickup);
     }
     
     startGame() {
@@ -203,20 +225,40 @@ class SpaceCatGame {
     }
     
     resetGame() {
+        // Reset to menu state and clear current objects
         this.gameState = 'menu';
         this.score = 0;
         this.lives = 3;
         this.level = 1;
-        this.enemies = [];
+
+        this.asteroids = [];
         this.bullets = [];
         this.particles = [];
-        this.createPlayer();
+        this.explosions = [];
+        this.pickups = [];
+
+        // Reset spacecraft state
+        if (this.spacecraft) {
+            this.spacecraft.state.health = this.spacecraft.config.hull.maxHealth;
+            this.spacecraft.state.energy = 100;
+            this.spacecraft.state.position = { x: this.canvas.width / 2, y: this.canvas.height / 2 };
+            this.spacecraft.state.velocity = { x: 0, y: 0 };
+            this.spacecraft.state.purrChargesUsed = 0;
+            this.spacecraft.state.weaponsOnline = true;
+            this.spacecraft.state.autopilotActive = false;
+        }
+
         this.updateUI();
-        
-        document.getElementById('startBtn').disabled = false;
-        document.getElementById('pauseBtn').disabled = true;
-        document.getElementById('pauseBtn').textContent = 'Pause';
-        document.getElementById('gameOverScreen').classList.add('hidden');
+
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        if (startBtn) startBtn.disabled = false;
+        if (pauseBtn) {
+            pauseBtn.disabled = true;
+            pauseBtn.textContent = 'Pause';
+        }
+
+        this.ui.hideGameOver();
     }
     
     shoot() {
@@ -289,7 +331,7 @@ class SpaceCatGame {
         
         // Spawn objects
         this.spawnAsteroid();
-        this.spawnPickup();
+        // Energy pickups now spawn only when asteroids are destroyed.
         
         // Check collisions
         this.checkCollisions();
@@ -335,6 +377,10 @@ class SpaceCatGame {
                         const explosion = new Explosion(asteroid.position.x, asteroid.position.y, 'asteroid');
                         explosion.initializeSprite(this.assetManager);
                         this.explosions.push(explosion);
+
+                        // Drop energy near the destroyed asteroid
+                        const size = asteroid.size || (asteroid.config?.radius >= 35 ? 'large' : asteroid.config?.radius >= 20 ? 'medium' : 'small');
+                        this.spawnEnergyPickupAt(asteroid.position.x, asteroid.position.y, size);
                         
                         // Check for level up
                         if (this.score > 0 && this.score % 100 === 0) {
@@ -353,13 +399,19 @@ class SpaceCatGame {
                 if (this.physics.checkCollision(this.spacecraft, asteroid)) {
                     this.asteroids.splice(asteroidIndex, 1);
                     
-                    // Damage spacecraft
-                    this.spacecraft.takeDamage(20);
+                    // Damage varies by asteroid size
+                    const size = asteroid.size || (asteroid.config?.radius >= 35 ? 'large' : asteroid.config?.radius >= 20 ? 'medium' : 'small');
+                    const damageMap = { small: 10, medium: 20, large: 40 };
+                    const baseDamage = damageMap[size] ?? 20;
+                    this.spacecraft.takeDamage(baseDamage);
                     
                     // Create explosion
                     const explosion = new Explosion(asteroid.position.x, asteroid.position.y, 'asteroid');
                     explosion.initializeSprite(this.assetManager);
                     this.explosions.push(explosion);
+
+                    // Drop energy near the destroyed asteroid
+                    this.spawnEnergyPickupAt(asteroid.position.x, asteroid.position.y, size);
                     
                     if (this.spacecraft.state.health <= 0) {
                         this.gameOver();
@@ -379,6 +431,11 @@ class SpaceCatGame {
                         // Apply pickup effect
                         this.spacecraft.state.energy = Math.min(100, 
                             this.spacecraft.state.energy + collected.energy);
+                        
+                        // Reactivate weapons if energy is sufficient again
+                        if (!this.spacecraft.state.weaponsOnline && this.spacecraft.state.energy >= (this.spacecraft.config.weapon.energyCost || 5)) {
+                            this.spacecraft.state.weaponsOnline = true;
+                        }
                         
                         this.ui.showMessage(`+${collected.energy} Energy!`, '#00ff00');
                     }
@@ -417,10 +474,13 @@ class SpaceCatGame {
                         x: Math.sin((shot.angle * Math.PI) / 180) * 300,
                         y: -Math.cos((shot.angle * Math.PI) / 180) * 300
                     },
+                    radius: 3,
                     damage: shot.damage
                 });
+                return true;
             }
         }
+        return false;
     }
 
     gameOver() {
@@ -570,3 +630,9 @@ class SpaceCatGame {
 document.addEventListener('DOMContentLoaded', () => {
     new SpaceCatGame();
 });
+
+
+// Ensure global for browser tests
+if (typeof window !== 'undefined') {
+    window.SpaceCatGame = SpaceCatGame;
+}

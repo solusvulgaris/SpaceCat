@@ -9,32 +9,53 @@ class PhysicsEngine {
         this.collisionThreshold = 20;
     }
 
-    // Check collision between two objects (improved for circular and rectangular)
+    // Check collision between two objects (robust for our mixed shapes)
     checkCollision(obj1, obj2) {
-        // Handle circular collision (for asteroids)
-        if (obj1.radius && obj2.radius) {
-            const dx = obj1.position.x - obj2.position.x;
-            const dy = obj1.position.y - obj2.position.y;
+        const getPos = (o) => o?.position || o?.state?.position || (typeof o?.x === 'number' && typeof o?.y === 'number' ? { x: o.x, y: o.y } : null);
+        const getRadius = (o) => (typeof o?.radius === 'number' ? o.radius : (typeof o?.config?.radius === 'number' ? o.config.radius : null));
+        const getRect = (o) => (typeof o?.width === 'number' && typeof o?.height === 'number' && typeof o?.x === 'number' && typeof o?.y === 'number') ? { x: o.x, y: o.y, w: o.width, h: o.height } : null;
+
+        const p1 = getPos(obj1);
+        const p2 = getPos(obj2);
+        const r1 = getRadius(obj1);
+        const r2 = getRadius(obj2);
+        const rect1 = getRect(obj1);
+        const rect2 = getRect(obj2);
+
+        // Circle-circle
+        if (p1 && p2 && r1 != null && r2 != null) {
+            const dx = p1.x - p2.x;
+            const dy = p1.y - p2.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            return distance < (obj1.radius + obj2.radius);
+            return distance < (r1 + r2);
         }
-        
-        // Handle rectangular collision
-        if (obj1.width && obj1.height && obj2.width && obj2.height) {
-            return obj1.x < obj2.x + obj2.width &&
-                   obj1.x + obj1.width > obj2.x &&
-                   obj1.y < obj2.y + obj2.height &&
-                   obj1.y + obj1.height > obj2.y;
+
+        // Rect-rect
+        if (rect1 && rect2) {
+            return rect1.x < rect2.x + rect2.w &&
+                   rect1.x + rect1.w > rect2.x &&
+                   rect1.y < rect2.y + rect2.h &&
+                   rect1.y + rect1.h > rect2.y;
         }
-        
-        // Handle mixed collision (circular vs rectangular)
-        if (obj1.radius && obj2.width) {
-            const dx = obj1.position.x - (obj2.x + obj2.width/2);
-            const dy = obj1.position.y - (obj2.y + obj2.height/2);
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            return distance < (obj1.radius + Math.max(obj2.width, obj2.height)/2);
+
+        // Circle-rect (obj1 circle, obj2 rect)
+        if (p1 && r1 != null && rect2) {
+            const cx = Math.max(rect2.x, Math.min(p1.x, rect2.x + rect2.w));
+            const cy = Math.max(rect2.y, Math.min(p1.y, rect2.y + rect2.h));
+            const dx = p1.x - cx;
+            const dy = p1.y - cy;
+            return (dx * dx + dy * dy) < (r1 * r1);
         }
-        
+
+        // Circle-rect (obj2 circle, obj1 rect)
+        if (p2 && r2 != null && rect1) {
+            const cx = Math.max(rect1.x, Math.min(p2.x, rect1.x + rect1.w));
+            const cy = Math.max(rect1.y, Math.min(p2.y, rect1.y + rect1.h));
+            const dx = p2.x - cx;
+            const dy = p2.y - cy;
+            return (dx * dx + dy * dy) < (r2 * r2);
+        }
+
         return false;
     }
 
@@ -119,4 +140,9 @@ class PhysicsEngine {
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = PhysicsEngine;
+}
+
+// Ensure global for browser tests
+if (typeof window !== 'undefined') {
+    window.PhysicsEngine = PhysicsEngine;
 }
