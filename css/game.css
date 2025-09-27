@@ -12,13 +12,14 @@ body {
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
-    overflow: hidden;
+    align-items: flex-start;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .game-container {
     width: 100%;
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -73,6 +74,7 @@ body {
     display: flex;
     gap: 20px;
     align-items: flex-start;
+    flex-wrap: wrap;
 }
 
 #gameCanvas {
@@ -86,13 +88,14 @@ body {
 .game-controls {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
     min-width: 200px;
+    flex: 1 1 260px;
 }
 
 .control-info {
     background: rgba(255, 255, 255, 0.1);
-    padding: 15px;
+    padding: 10px;
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -104,22 +107,22 @@ body {
 }
 
 .control-info p {
-    margin: 5px 0;
-    font-size: 0.9rem;
+    margin: 3px 0;
+    font-size: 0.8rem;
     color: #cccccc;
 }
 
 .game-buttons {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .btn {
-    padding: 12px 20px;
+    padding: 10px 16px;
     border: none;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -549,29 +552,29 @@ body {
 /* Spacecraft Configuration */
 .spacecraft-config {
     background: rgba(255, 255, 255, 0.1);
-    padding: 15px;
+    padding: 10px;
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .spacecraft-config h4 {
     color: #4ecdc4;
-    margin-bottom: 10px;
-    font-size: 1.1rem;
+    margin-bottom: 8px;
+    font-size: 1rem;
 }
 
 .config-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
+    gap: 8px;
 }
 
 .config-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 5px 10px;
+    padding: 4px 8px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 5px;
     border: 1px solid rgba(78, 205, 196, 0.2);
@@ -580,12 +583,12 @@ body {
 .config-name {
     color: #4ecdc4;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .config-spec {
     color: #ffffff;
-    font-size: 11px;
+    font-size: 10px;
 }
 
 /* Control Sections */

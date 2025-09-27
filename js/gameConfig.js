@@ -161,3 +161,8 @@ const GAME_CONFIG = {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = GAME_CONFIG;
 }
+
+// Ensure global for browser tests
+if (typeof window !== 'undefined') {
+    window.GAME_CONFIG = GAME_CONFIG;
+}

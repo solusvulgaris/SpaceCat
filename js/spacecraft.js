@@ -3,6 +3,9 @@
 
 class SpaceCatShip {
     constructor() {
+        // Collision radius for physics (used for asteroid impacts)
+        this.radius = 22;
+
         // Ship Configuration
         this.config = {
             hull: {
@@ -125,6 +128,10 @@ class SpaceCatShip {
         if (this.state.purrChargesUsed < this.config.purrCharge.maxCharges) {
             this.state.energy = Math.min(100, this.state.energy + this.config.purrCharge.energyPerCharge);
             this.state.purrChargesUsed++;
+            // Re-enable weapons if we have enough energy again
+            if (!this.state.weaponsOnline && this.state.energy >= (this.config.weapon.energyCost || 5)) {
+                this.state.weaponsOnline = true;
+            }
             return true;
         }
         return false;
@@ -250,6 +257,10 @@ class SpaceCatShip {
         if (this.state.purrChargesUsed < this.config.purrCharge.maxCharges) {
             this.state.energy = Math.min(100, this.state.energy + this.config.purrCharge.energyPerCharge);
             this.state.purrChargesUsed++;
+            // Re-enable weapons if we have enough energy again
+            if (!this.state.weaponsOnline && this.state.energy >= (this.config.weapon.energyCost || 5)) {
+                this.state.weaponsOnline = true;
+            }
             return true;
         }
         return false;
@@ -259,4 +270,9 @@ class SpaceCatShip {
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = SpaceCatShip;
+}
+
+// Ensure global for browser tests
+if (typeof window !== 'undefined') {
+    window.SpaceCatShip = SpaceCatShip;
 }

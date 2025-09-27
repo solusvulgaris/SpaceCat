@@ -40,9 +40,10 @@ class UIManager {
         this.updateElement('energy-value', `${Math.round(status.energy)}%`);
         this.updateElement('purr-count', status.purrCharges);
         
-        // Update health bar
+        // Update health bar (support both 'health-fill' and 'hull-fill' IDs)
         const healthPercent = (status.health / status.maxHealth) * 100;
         this.updateBar('health-fill', healthPercent);
+        this.updateBar('hull-fill', healthPercent);
         
         // Update energy bar
         this.updateBar('energy-fill', status.energy);
@@ -217,4 +218,9 @@ class UIManager {
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = UIManager;
+}
+
+// Ensure global for browser tests
+if (typeof window !== 'undefined') {
+    window.UIManager = UIManager;
 }
