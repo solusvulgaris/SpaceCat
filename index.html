@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Cat - Adventure in the Cosmos</title>
+    <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>🐱 Space Cat</h1>
+            <div class="game-stats">
+                <div class="stat">
+                    <span class="stat-label">Score:</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Lives:</span>
+                    <span id="lives">3</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Level:</span>
+                    <span id="level">1</span>
+                </div>
+            </div>
+        </header>
+        
+        <main class="game-main">
+            <div class="game-canvas-container">
+                <canvas id="gameCanvas" width="800" height="600"></canvas>
+                
+                <!-- HUD Overlay -->
+                <div id="hud-overlay" class="hud-overlay">
+                    <div class="hud-top">
+                        <div class="hud-left">
+                            <div class="hud-item">
+                                <span class="hud-label">Score:</span>
+                                <span id="hud-score" class="hud-value">0</span>
+                            </div>
+                            <div class="hud-item">
+                                <span class="hud-label">Lives:</span>
+                                <span id="hud-lives" class="hud-value">3</span>
+                            </div>
+                            <div class="hud-item">
+                                <span class="hud-label">Level:</span>
+                                <span id="hud-level" class="hud-value">1</span>
+                            </div>
+                        </div>
+                        <div class="hud-right">
+                            <div class="hud-item">
+                                <span class="hud-label">Hull:</span>
+                                <div class="health-bar">
+                                    <div id="hull-fill" class="health-fill"></div>
+                                    <span id="hull-value" class="bar-value">100/100</span>
+                                </div>
+                            </div>
+                            <div class="hud-item">
+                                <span class="hud-label">Energy:</span>
+                                <div class="energy-bar">
+                                    <div id="energy-fill" class="energy-fill"></div>
+                                    <span id="energy-value" class="bar-value">100%</span>
+                                </div>
+                            </div>
+                            <div class="hud-item">
+                                <span class="hud-label">PurrCharges:</span>
+                                <div class="purr-charges">
+                                    <span id="purr-count" class="purr-count">4</span>
+                                    <span class="purr-label">/4</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="hud-bottom">
+                        <div class="system-status">
+                            <div class="status-item">
+                                <span class="status-label">Weapons:</span>
+                                <span id="weapons-status" class="status-indicator online">ONLINE</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">Autopilot:</span>
+                                <span id="autopilot-status" class="status-indicator offline">OFF</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">Navigation:</span>
+                                <span id="navigation-status" class="status-indicator online">ACTIVE</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label">Escape Pod:</span>
+                                <span id="escape-status" class="status-indicator available">READY</span>
+                            </div>
+                        </div>
+                        <div class="radar-container">
+                            <div class="radar">
+                                <div id="radar-dot" class="radar-dot"></div>
+                            </div>
+                            <span class="radar-label">Radar</span>
+                        </div>
+                        <div class="minimap">
+                            <canvas id="minimap" width="100" height="100"></canvas>
+                            <span class="minimap-label">Minimap</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Command Console -->
+            <div id="command-console" class="command-console">
+                <div class="console-header">
+                    <h3>🐱 Space Cat Command Console</h3>
+                    <button id="console-toggle" class="console-toggle">_</button>
+                </div>
+                <div class="console-content">
+                    <div id="console-output" class="console-output">
+                        <div class="console-line">🐱 Space Cat Command Console Ready</div>
+                        <div class="console-line">Composite Hull (80M) | Strong Gun (60M) | Improved Autopilot (40M)</div>
+                        <div class="console-line">Improved Navigation (40M) | PurrCharge-4 (40M) | Standard Systems (80M)</div>
+                        <div class="console-line">Total Ship Cost: 300M | Type 'help' for commands</div>
+                    </div>
+                    <div class="console-input-container">
+                        <span class="console-prompt">🐱></span>
+                        <input type="text" id="console-input" class="console-input" placeholder="Enter command (help, status, autopilot, purr, eject)...">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-controls">
+                <div class="control-info">
+                    <h3>🚀 Space Cat Controls:</h3>
+                    <div class="control-section">
+                        <h4>Movement & Navigation:</h4>
+                        <p>🕹️ Arrow Keys: Move (Improved Navigation - 0.5s delay)</p>
+                        <p>🎯 A: Toggle Autopilot (1%/s energy use)</p>
+                    </div>
+                    <div class="control-section">
+                        <h4>Combat & Systems:</h4>
+                        <p>🚀 Spacebar: Strong Gun (1-shot asteroid destruction)</p>
+                        <p>💊 H: PurrCharge (4 charges, 25 energy each)</p>
+                        <p>🚀 E: Eject Escape Pod (Standard system)</p>
+                    </div>
+                    <div class="control-section">
+                        <h4>Interface:</h4>
+                        <p>⏸️ P: Pause</p>
+                        <p>💬 ~: Toggle Console</p>
+                        <p>📊 F1: Ship Status</p>
+                    </div>
+                </div>
+                
+                <div class="spacecraft-config">
+                    <h4>🚀 Spacecraft Configuration (300M Total):</h4>
+                    <div class="config-grid">
+                        <div class="config-item">
+                            <span class="config-name">Hull:</span>
+                            <span class="config-spec">Composite (80M, Str 10)</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-name">Weapon:</span>
+                            <span class="config-spec">Strong Gun (60M, 1-shot)</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-name">Autopilot:</span>
+                            <span class="config-spec">Improved (40M, 1%/s)</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-name">Navigation:</span>
+                            <span class="config-spec">Improved (40M, 0.5s delay)</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-name">PurrCharge:</span>
+                            <span class="config-spec">PurrCharge-4 (40M, 4 charges)</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-name">Systems:</span>
+                            <span class="config-spec">Standard (80M total)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="game-buttons">
+                    <button id="startBtn" class="btn btn-primary">🚀 Launch Space Cat</button>
+                    <button id="pauseBtn" class="btn btn-secondary" disabled>⏸️ Pause</button>
+                    <button id="resetBtn" class="btn btn-danger">🔄 Reset</button>
+                </div>
+            </div>
+        </main>
+        
+        <div id="gameOverScreen" class="game-over hidden">
+            <div class="game-over-content">
+                <h2>Game Over!</h2>
+                <p>Final Score: <span id="finalScore">0</span></p>
+                <button id="playAgainBtn" class="btn btn-primary">Play Again</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/gameConfig.js"></script>
+    <script src="js/assets.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/commands.js"></script>
+    <script src="js/gameObjects.js"></script>
+    <script src="js/spacecraft.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

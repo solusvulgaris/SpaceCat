@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Cat Debug</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #000; color: #fff; font-family: Arial; }
+        canvas { border: 2px solid #4ecdc4; background: #000; }
+        .debug { margin: 10px 0; padding: 10px; background: #333; border-radius: 5px; }
+        .error { color: #ff0000; }
+        .success { color: #00ff00; }
+        .info { color: #4ecdc4; }
+    </style>
+</head>
+<body>
+    <h1>🐱 Space Cat Debug</h1>
+    <div class="debug">
+        <div id="status">Initializing...</div>
+        <div id="errors"></div>
+    </div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="debug">
+        <button onclick="startGame()">Start Game</button>
+        <button onclick="testClasses()">Test Classes</button>
+        <div id="console"></div>
+    </div>
+
+    <script>
+        const status = document.getElementById('status');
+        const errors = document.getElementById('errors');
+        const console = document.getElementById('console');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            console.appendChild(div);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function testClasses() {
+            log('Testing classes...', 'info');
+            
+            try {
+                if (typeof AssetManager !== 'undefined') {
+                    log('✅ AssetManager class found', 'success');
+                } else {
+                    log('❌ AssetManager class not found', 'error');
+                }
+                
+                if (typeof SpaceCatShip !== 'undefined') {
+                    log('✅ SpaceCatShip class found', 'success');
+                } else {
+                    log('❌ SpaceCatShip class not found', 'error');
+                }
+                
+                if (typeof PhysicsEngine !== 'undefined') {
+                    log('✅ PhysicsEngine class found', 'success');
+                } else {
+                    log('❌ PhysicsEngine class not found', 'error');
+                }
+                
+                if (typeof UIManager !== 'undefined') {
+                    log('✅ UIManager class found', 'success');
+                } else {
+                    log('❌ UIManager class not found', 'error');
+                }
+                
+                if (typeof CommandManager !== 'undefined') {
+                    log('✅ CommandManager class found', 'success');
+                } else {
+                    log('❌ CommandManager class not found', 'error');
+                }
+                
+                if (typeof Asteroid !== 'undefined') {
+                    log('✅ Asteroid class found', 'success');
+                } else {
+                    log('❌ Asteroid class not found', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error testing classes: ${error.message}`, 'error');
+            }
+        }
+
+        function startGame() {
+            try {
+                log('Starting game...', 'info');
+                const game = new SpaceCatGame();
+                log('✅ Game initialized successfully', 'success');
+                status.textContent = 'Game started successfully!';
+            } catch (error) {
+                log(`❌ Error starting game: ${error.message}`, 'error');
+                status.textContent = 'Game failed to start';
+                errors.textContent = error.stack;
+            }
+        }
+
+        // Test basic functionality
+        window.addEventListener('load', () => {
+            log('Page loaded, testing basic functionality...', 'info');
+            
+            try {
+                const canvas = document.getElementById('gameCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Draw test pattern
+                ctx.fillStyle = '#4ecdc4';
+                ctx.fillRect(50, 50, 100, 50);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '16px Arial';
+                ctx.fillText('Space Cat Debug', 60, 80);
+                
+                log('✅ Canvas test passed', 'success');
+                status.textContent = 'Ready for testing';
+                
+            } catch (error) {
+                log(`❌ Canvas test failed: ${error.message}`, 'error');
+                status.textContent = 'Canvas test failed';
+            }
+        });
+
+        // Global error handler
+        window.addEventListener('error', (event) => {
+            log(`❌ Global error: ${event.error.message}`, 'error');
+            errors.textContent = event.error.stack;
+        });
+    </script>
+
+    <!-- Load game scripts in order -->
+    <script src="js/gameConfig.js"></script>
+    <script src="js/assets.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/commands.js"></script>
+    <script src="js/gameObjects.js"></script>
+    <script src="js/spacecraft.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

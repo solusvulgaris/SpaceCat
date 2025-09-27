@@ -1,0 +1,17 @@
+{
+  "name": "space-cat",
+  "version": "1.0.0",
+  "description": "A space adventure game featuring a cat astronaut",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server . -p 3000",
+    "dev": "npx live-server . --port=3000"
+  },
+  "keywords": ["game", "space", "cat", "html5", "canvas", "javascript"],
+  "author": "Space Cat Developer",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  }
+}

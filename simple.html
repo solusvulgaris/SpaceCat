@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Cat - Simple Version</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #000; color: #fff; font-family: Arial; }
+        canvas { border: 2px solid #4ecdc4; background: #000; }
+        .controls { margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; background: #4ecdc4; color: #000; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #45b7d1; }
+        .status { margin: 10px 0; padding: 10px; background: #333; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🐱 Space Cat - Simple Version</h1>
+    <div class="controls">
+        <button onclick="startGame()">Start Game</button>
+        <button onclick="pauseGame()">Pause</button>
+        <button onclick="resetGame()">Reset</button>
+    </div>
+    <div class="status">
+        <div>Score: <span id="score">0</span></div>
+        <div>Lives: <span id="lives">3</span></div>
+        <div>Energy: <span id="energy">100</span>%</div>
+    </div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="controls">
+        <p>Controls: Arrow Keys to move, Space to shoot, H to heal, A for autopilot</p>
+    </div>
+
+    <script>
+        class SimpleSpaceCatGame {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.gameState = 'menu';
+                this.score = 0;
+                this.lives = 3;
+                this.energy = 100;
+                
+                // Game objects
+                this.ship = { x: 400, y: 300, vx: 0, vy: 0, angle: 0, size: 20 };
+                this.bullets = [];
+                this.asteroids = [];
+                this.particles = [];
+                this.stars = [];
+                
+                // Input
+                this.keys = {};
+                this.setupEventListeners();
+                this.createStars();
+                this.gameLoop();
+            }
+            
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    this.keys[e.code] = true;
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        this.shoot();
+                    }
+                    if (e.code === 'KeyH') {
+                        this.heal();
+                    }
+                    if (e.code === 'KeyA') {
+                        this.toggleAutopilot();
+                    }
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    this.keys[e.code] = false;
+                });
+            }
+            
+            createStars() {
+                for (let i = 0; i < 100; i++) {
+                    this.stars.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        size: Math.random() * 2 + 1,
+                        speed: Math.random() * 2 + 0.5,
+                        opacity: Math.random() * 0.8 + 0.2
+                    });
+                }
+            }
+            
+            startGame() {
+                this.gameState = 'playing';
+                this.score = 0;
+                this.lives = 3;
+                this.energy = 100;
+                this.ship = { x: 400, y: 300, vx: 0, vy: 0, angle: 0, size: 20 };
+                this.bullets = [];
+                this.asteroids = [];
+                this.updateUI();
+            }
+            
+            pauseGame() {
+                if (this.gameState === 'playing') {
+                    this.gameState = 'paused';
+                } else if (this.gameState === 'paused') {
+                    this.gameState = 'playing';
+                }
+            }
+            
+            resetGame() {
+                this.gameState = 'menu';
+                this.startGame();
+            }
+            
+            shoot() {
+                if (this.gameState === 'playing' && this.energy > 0) {
+                    this.bullets.push({
+                        x: this.ship.x,
+                        y: this.ship.y,
+                        vx: Math.sin(this.ship.angle) * 300,
+                        vy: -Math.cos(this.ship.angle) * 300,
+                        life: 60
+                    });
+                    this.energy -= 5;
+                }
+            }
+            
+            heal() {
+                if (this.energy < 100) {
+                    this.energy = Math.min(100, this.energy + 25);
+                }
+            }
+            
+            toggleAutopilot() {
+                // Simple autopilot toggle
+                console.log('Autopilot toggled');
+            }
+            
+            update() {
+                if (this.gameState !== 'playing') return;
+                
+                // Update ship
+                if (this.keys['ArrowLeft']) {
+                    this.ship.angle -= 0.1;
+                }
+                if (this.keys['ArrowRight']) {
+                    this.ship.angle += 0.1;
+                }
+                if (this.keys['ArrowUp']) {
+                    this.ship.vx += Math.sin(this.ship.angle) * 2;
+                    this.ship.vy -= Math.cos(this.ship.angle) * 2;
+                }
+                if (this.keys['ArrowDown']) {
+                    this.ship.vx *= 0.9;
+                    this.ship.vy *= 0.9;
+                }
+                
+                // Apply friction
+                this.ship.vx *= 0.98;
+                this.ship.vy *= 0.98;
+                
+                // Update position
+                this.ship.x += this.ship.vx * 0.016;
+                this.ship.y += this.ship.vy * 0.016;
+                
+                // Keep ship in bounds
+                this.ship.x = Math.max(20, Math.min(this.canvas.width - 20, this.ship.x));
+                this.ship.y = Math.max(20, Math.min(this.canvas.height - 20, this.ship.y));
+                
+                // Update bullets
+                this.bullets = this.bullets.filter(bullet => {
+                    bullet.x += bullet.vx * 0.016;
+                    bullet.y += bullet.vy * 0.016;
+                    bullet.life--;
+                    return bullet.life > 0 && bullet.x > 0 && bullet.x < this.canvas.width && 
+                           bullet.y > 0 && bullet.y < this.canvas.height;
+                });
+                
+                // Spawn asteroids
+                if (Math.random() < 0.01) {
+                    this.asteroids.push({
+                        x: Math.random() * this.canvas.width,
+                        y: -50,
+                        vx: (Math.random() - 0.5) * 50,
+                        vy: Math.random() * 50 + 20,
+                        size: Math.random() * 20 + 10,
+                        angle: 0,
+                        rotationSpeed: (Math.random() - 0.5) * 0.1
+                    });
+                }
+                
+                // Update asteroids
+                this.asteroids = this.asteroids.filter(asteroid => {
+                    asteroid.x += asteroid.vx * 0.016;
+                    asteroid.y += asteroid.vy * 0.016;
+                    asteroid.angle += asteroid.rotationSpeed;
+                    return asteroid.y < this.canvas.height + 50;
+                });
+                
+                // Check collisions
+                this.checkCollisions();
+                
+                // Update particles
+                this.particles = this.particles.filter(particle => {
+                    particle.x += particle.vx * 0.016;
+                    particle.y += particle.vy * 0.016;
+                    particle.life--;
+                    return particle.life > 0;
+                });
+                
+                // Update stars
+                this.stars.forEach(star => {
+                    star.y += star.speed * 0.016;
+                    if (star.y > this.canvas.height) {
+                        star.y = -star.size;
+                        star.x = Math.random() * this.canvas.width;
+                    }
+                });
+                
+                this.updateUI();
+            }
+            
+            checkCollisions() {
+                // Bullet vs Asteroid
+                this.bullets.forEach((bullet, bulletIndex) => {
+                    this.asteroids.forEach((asteroid, asteroidIndex) => {
+                        const dx = bullet.x - asteroid.x;
+                        const dy = bullet.y - asteroid.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < asteroid.size) {
+                            this.bullets.splice(bulletIndex, 1);
+                            this.asteroids.splice(asteroidIndex, 1);
+                            this.score += 10;
+                            
+                            // Create explosion
+                            for (let i = 0; i < 10; i++) {
+                                this.particles.push({
+                                    x: asteroid.x,
+                                    y: asteroid.y,
+                                    vx: (Math.random() - 0.5) * 100,
+                                    vy: (Math.random() - 0.5) * 100,
+                                    life: 30,
+                                    color: `hsl(${Math.random() * 60 + 20}, 100%, 50%)`
+                                });
+                            }
+                        }
+                    });
+                });
+                
+                // Ship vs Asteroid
+                this.asteroids.forEach((asteroid, asteroidIndex) => {
+                    const dx = this.ship.x - asteroid.x;
+                    const dy = this.ship.y - asteroid.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < asteroid.size + this.ship.size) {
+                        this.asteroids.splice(asteroidIndex, 1);
+                        this.lives--;
+                        
+                        if (this.lives <= 0) {
+                            this.gameState = 'gameOver';
+                        }
+                    }
+                });
+            }
+            
+            render() {
+                // Clear canvas
+                this.ctx.fillStyle = '#000011';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw stars
+                this.ctx.fillStyle = '#ffffff';
+                this.stars.forEach(star => {
+                    this.ctx.globalAlpha = star.opacity;
+                    this.ctx.fillRect(star.x, star.y, star.size, star.size);
+                });
+                this.ctx.globalAlpha = 1;
+                
+                if (this.gameState === 'playing' || this.gameState === 'paused') {
+                    // Draw ship
+                    this.ctx.save();
+                    this.ctx.translate(this.ship.x, this.ship.y);
+                    this.ctx.rotate(this.ship.angle);
+                    
+                    this.ctx.fillStyle = '#4ecdc4';
+                    this.ctx.fillRect(-10, -20, 20, 40);
+                    
+                    // Draw ship details
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.fillRect(-5, -15, 4, 4);
+                    this.ctx.fillRect(1, -15, 4, 4);
+                    this.ctx.fillRect(-2, -5, 4, 3);
+                    
+                    this.ctx.restore();
+                    
+                    // Draw bullets
+                    this.ctx.fillStyle = '#ff6b6b';
+                    this.bullets.forEach(bullet => {
+                        this.ctx.fillRect(bullet.x - 2, bullet.y - 2, 4, 4);
+                    });
+                    
+                    // Draw asteroids
+                    this.ctx.fillStyle = '#8B4513';
+                    this.asteroids.forEach(asteroid => {
+                        this.ctx.save();
+                        this.ctx.translate(asteroid.x, asteroid.y);
+                        this.ctx.rotate(asteroid.angle);
+                        
+                        this.ctx.beginPath();
+                        this.ctx.arc(0, 0, asteroid.size, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        
+                        this.ctx.strokeStyle = '#654321';
+                        this.ctx.lineWidth = 2;
+                        this.ctx.stroke();
+                        
+                        this.ctx.restore();
+                    });
+                    
+                    // Draw particles
+                    this.particles.forEach(particle => {
+                        this.ctx.fillStyle = particle.color;
+                        this.ctx.globalAlpha = particle.life / 30;
+                        this.ctx.fillRect(particle.x, particle.y, 3, 3);
+                    });
+                    this.ctx.globalAlpha = 1;
+                }
+                
+                // Draw pause overlay
+                if (this.gameState === 'paused') {
+                    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                    
+                    this.ctx.fillStyle = '#4ecdc4';
+                    this.ctx.font = '48px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('PAUSED', this.canvas.width / 2, this.canvas.height / 2);
+                }
+                
+                // Draw game over
+                if (this.gameState === 'gameOver') {
+                    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                    
+                    this.ctx.fillStyle = '#ff6b6b';
+                    this.ctx.font = '48px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('GAME OVER', this.canvas.width / 2, this.canvas.height / 2);
+                    
+                    this.ctx.fillStyle = '#4ecdc4';
+                    this.ctx.font = '24px Arial';
+                    this.ctx.fillText(`Final Score: ${this.score}`, this.canvas.width / 2, this.canvas.height / 2 + 50);
+                }
+            }
+            
+            updateUI() {
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('lives').textContent = this.lives;
+                document.getElementById('energy').textContent = Math.round(this.energy);
+            }
+            
+            gameLoop() {
+                this.update();
+                this.render();
+                requestAnimationFrame(() => this.gameLoop());
+            }
+        }
+        
+        // Global functions
+        let game;
+        
+        function startGame() {
+            if (!game) {
+                game = new SimpleSpaceCatGame();
+            }
+            game.startGame();
+        }
+        
+        function pauseGame() {
+            if (game) {
+                game.pauseGame();
+            }
+        }
+        
+        function resetGame() {
+            if (game) {
+                game.resetGame();
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            game = new SimpleSpaceCatGame();
+        });
+    </script>
+</body>
+</html>

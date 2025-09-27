@@ -1,0 +1,641 @@
+/* Space Cat Game Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+    color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.game-header h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.game-stats {
+    display: flex;
+    gap: 30px;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #cccccc;
+    font-weight: 500;
+}
+
+.stat span:last-child {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4ecdc4;
+    text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+}
+
+.game-main {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+#gameCanvas {
+    border: 3px solid #4ecdc4;
+    border-radius: 10px;
+    background: #000;
+    box-shadow: 0 0 30px rgba(78, 205, 196, 0.3);
+    image-rendering: pixelated;
+}
+
+.game-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 200px;
+}
+
+.control-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.control-info h3 {
+    color: #4ecdc4;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.control-info p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+    color: #cccccc;
+}
+
+.game-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+    color: white;
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(78, 205, 196, 0.5);
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, #ff6b6b, #ffa500);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #ff4757, #ff3742);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+}
+
+.btn-danger:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.5);
+}
+
+.game-over {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.game-over.hidden {
+    display: none;
+}
+
+.game-over-content {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    border: 2px solid #4ecdc4;
+    box-shadow: 0 0 50px rgba(78, 205, 196, 0.5);
+}
+
+.game-over-content h2 {
+    font-size: 3rem;
+    color: #ff6b6b;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+.game-over-content p {
+    font-size: 1.5rem;
+    color: #4ecdc4;
+    margin-bottom: 30px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .game-main {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .game-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .game-stats {
+        justify-content: center;
+    }
+    
+    #gameCanvas {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+    }
+    
+    .game-controls {
+        width: 100%;
+        max-width: 400px;
+    }
+}
+
+/* Game Canvas Container */
+.game-canvas-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* HUD Overlay */
+.hud-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.hud-top {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.hud-left, .hud-right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.hud-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.hud-label {
+    color: #4ecdc4;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.hud-value {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* Health and Energy Bars */
+.health-bar, .energy-bar {
+    width: 100px;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #333;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.health-fill, .energy-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+    border-radius: 3px;
+}
+
+.health-fill {
+    background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00);
+}
+
+.energy-fill {
+    background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00);
+}
+
+.bar-value {
+    font-size: 10px;
+    color: #ffffff;
+    margin-left: 5px;
+}
+
+/* PurrCharges */
+.purr-charges {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.purr-count {
+    color: #ff00ff;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.purr-label {
+    color: #cccccc;
+    font-size: 12px;
+}
+
+/* System Status */
+.hud-bottom {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.system-status {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.status-label {
+    color: #4ecdc4;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.status-indicator {
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.status-indicator.online {
+    background: #00ff00;
+    color: #000000;
+}
+
+.status-indicator.offline {
+    background: #ff0000;
+    color: #ffffff;
+}
+
+.status-indicator.available {
+    background: #ffff00;
+    color: #000000;
+}
+
+/* Radar */
+.radar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.radar {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #4ecdc4;
+    border-radius: 50%;
+    position: relative;
+    background: radial-gradient(circle, rgba(78, 205, 196, 0.1) 0%, transparent 70%);
+}
+
+.radar-dot {
+    width: 4px;
+    height: 4px;
+    background: #ff0000;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: radar-sweep 2s linear infinite;
+}
+
+.radar-label {
+    color: #4ecdc4;
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+/* Minimap */
+.minimap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.minimap canvas {
+    border: 1px solid #4ecdc4;
+    border-radius: 3px;
+}
+
+.minimap-label {
+    color: #4ecdc4;
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+/* Command Console */
+.command-console {
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #4ecdc4;
+    border-radius: 10px;
+    margin-top: 20px;
+    box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+    display: none;
+}
+
+.console-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: linear-gradient(90deg, #4ecdc4, #45b7d1);
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid #4ecdc4;
+}
+
+.console-header h3 {
+    color: #000000;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.console-toggle {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.console-toggle:hover {
+    background: #ff5252;
+}
+
+.console-content {
+    padding: 15px;
+}
+
+.console-output {
+    background: #000000;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 10px;
+    height: 200px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #00ff00;
+}
+
+.console-line {
+    margin: 2px 0;
+    word-wrap: break-word;
+}
+
+.console-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.console-prompt {
+    color: #4ecdc4;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+}
+
+.console-input {
+    flex: 1;
+    background: #000000;
+    border: 1px solid #4ecdc4;
+    border-radius: 3px;
+    padding: 8px;
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+.console-input:focus {
+    outline: none;
+    border-color: #45b7d1;
+    box-shadow: 0 0 5px rgba(78, 205, 196, 0.5);
+}
+
+/* Spacecraft Configuration */
+.spacecraft-config {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 20px;
+}
+
+.spacecraft-config h4 {
+    color: #4ecdc4;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.config-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.config-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.config-name {
+    color: #4ecdc4;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.config-spec {
+    color: #ffffff;
+    font-size: 11px;
+}
+
+/* Control Sections */
+.control-section {
+    margin-bottom: 15px;
+}
+
+.control-section h4 {
+    color: #4ecdc4;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+    padding-bottom: 5px;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes radar-sweep {
+    0% { transform: translate(-50%, -50%) rotate(0deg) translateX(25px) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg) translateX(25px) rotate(-360deg); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.pulse {
+    animation: pulse 0.5s ease-in-out;
+}
+
+.loading {
+    animation: spin 1s linear infinite;
+}
+
+/* Game Messages */
+.game-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    pointer-events: none;
+}
